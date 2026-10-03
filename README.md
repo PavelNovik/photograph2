@@ -30,4 +30,10 @@ npm run build
 npm run preview
 ```
 
-For GitHub Pages, configure Vite `base` to the repository name if the site is hosted under `username.github.io/repository-name/`.
+## Deploy (Vercel)
+
+1. Import the GitHub repository in Vercel (**Add New → Project**).
+2. Framework Preset: **Vite** (detected automatically). Build command `npm run build`, output directory `dist`.
+3. `vercel.json` rewrites all routes to `index.html`, so direct links such as `/portfolio` work with React Router.
+
+Requires Node.js 20.19+.

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import hero from "./hero.jpg";
 import heroAlt from "./hero-alt.jpg";
@@ -34,7 +34,8 @@ export const content = {
     contactText:"Napisz kilka słów o swoim pomyśle, terminie i miejscu. Odpowiem i przygotuję indywidualną ofertę.",
     send:"Napisz wiadomość →", pagePortfolio:"Portfolio", pageAbout:"O mnie", pageServices:"Oferta", pageContact:"Kontakt",
     portfolioIntro:"Każde zdjęcie ma swoją historię. Wybierz kategorię i zobacz wybrane realizacje.",
-    all:"Wszystkie", back:"← Strona główna", close:"Zamknij"
+    all:"Wszystkie", back:"← Strona główna", close:"Zamknij",
+    notFoundTitle:"404", notFoundText:"Nie znaleziono strony. Mogła zostać przeniesiona lub usunięta."
   },
   en: {
     nav: {home:"Home", about:"About", services:"Services", portfolio:"Portfolio", contact:"Contact"},
@@ -61,7 +62,8 @@ export const content = {
     contactText:"Tell me a little about your idea, date and location. I'll reply with a tailored offer.",
     send:"Write a message →", pagePortfolio:"Portfolio", pageAbout:"About me", pageServices:"Services", pageContact:"Contact",
     portfolioIntro:"Every photograph has its own story. Choose a category and explore selected work.",
-    all:"All", back:"← Home", close:"Close"
+    all:"All", back:"← Home", close:"Close",
+    notFoundTitle:"404", notFoundText:"Page not found. It may have been moved or removed."
   }
 };
 
@@ -85,10 +87,28 @@ const filterMap = {
   en: {All:"All", Weddings:"Wedding", Families:"Families", Portraits:"Portrait", Travel:"Travel"}
 };
 
+const LanguageContext = createContext(null);
+
+export function LanguageProvider({children}) {
+  const [lang, setLang] = useState(() => {
+    try { const saved = localStorage.getItem("mn-lang"); return saved in content ? saved : "pl"; } catch { return "pl"; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem("mn-lang", lang); } catch {}
+    document.documentElement.lang = lang;
+  }, [lang]);
+  const toggle = useCallback(() => setLang(v => v === "pl" ? "en" : "pl"), []);
+  return <LanguageContext.Provider value={[lang, content[lang], toggle]}>{children}</LanguageContext.Provider>
+}
+
 export function useLanguage() {
-  const [lang, setLang] = useState(() => localStorage.getItem("mn-lang") || "pl");
-  useEffect(() => { localStorage.setItem("mn-lang", lang); document.documentElement.lang = lang; }, [lang]);
-  return [lang, content[lang], () => setLang(v => v === "pl" ? "en" : "pl")];
+  return useContext(LanguageContext);
+}
+
+export function ScrollToTop() {
+  const {pathname} = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
 }
 
 function Header({t, lang, toggle}) {
@@ -159,6 +179,11 @@ export function About() {
 export function Services() {
   const [lang,t]=useLanguage();
   return <PageShell title={t.pageServices} intro={t.servicesText}><div className="service-list">{t.serviceItems.map(([title,text],i)=><Reveal className="service-row" key={title}><img src={[services,galleryAlt,about,heroAlt][i]} alt={title}/><div><div className="eyebrow">0{i+1}</div><h2>{title}</h2><p>{text}</p><Link className="more" to="/contact">{t.book} →</Link></div></Reveal>)}</div></PageShell>
+}
+
+export function NotFound() {
+  const [lang,t]=useLanguage();
+  return <PageShell title={t.notFoundTitle} intro={t.notFoundText}><Link className="btn dark" to="/">{t.nav.home}</Link></PageShell>
 }
 
 export function Contact() {
