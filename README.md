@@ -4,16 +4,11 @@ Bilingual Polish/English photography portfolio.
 
 ## Features
 
-- React + Vite
-- React Router
-- Separate Home / About / Services / Portfolio / Contact pages
-- Polish / English language switch
+- React + Vite, single-page layout with anchor navigation
+- Polish / English language switch (remembered in the browser)
 - Portfolio filtering
-- Fullscreen image lightbox
 - Responsive mobile navigation
 - Scroll-based navbar
-- Reveal animations
-- Contact form demo
 - Local gallery assets
 
 ## Start
@@ -34,6 +29,6 @@ npm run preview
 
 1. Import the GitHub repository in Vercel (**Add New → Project**).
 2. Framework Preset: **Vite** (detected automatically). Build command `npm run build`, output directory `dist`.
-3. `vercel.json` rewrites all routes to `index.html`, so direct links such as `/portfolio` work with React Router.
+3. `vercel.json` rewrites unknown paths to `index.html`, so mistyped links open the site instead of a 404.
 
 Requires Node.js 20.19+.
