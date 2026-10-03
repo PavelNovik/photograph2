@@ -84,7 +84,7 @@ function useStoredState(key, initial, valid) {
 function useLanguage() {
   const [lang, setLang] = useStoredState("mn-lang", "pl", v => v === "pl" || v === "en");
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
-  return [lang, () => setLang(v => v === "pl" ? "en" : "pl")];
+  return [lang, setLang];
 }
 
 function useTheme() {
@@ -95,7 +95,7 @@ function useTheme() {
   return [theme, () => setTheme(v => v === "dark" ? "light" : "dark")];
 }
 
-function Nav({t, lang, toggleLang, theme, toggleTheme}) {
+function Nav({t, lang, setLang, theme, toggleTheme}) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
@@ -119,7 +119,11 @@ function Nav({t, lang, toggleLang, theme, toggleTheme}) {
           ? <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8"/></svg>
           : <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>}
       </button>
-      <button className="lang" type="button" onClick={toggleLang} aria-label="Język / Language">{lang === "pl" ? <>PL / <b>EN</b></> : <><b>PL</b> / EN</>}</button>
+      <div className="lang" role="group" aria-label="Język / Language">
+        {[["pl","PL","Polski"],["en","EN","English"]].map(([code,label,name]) =>
+          <button key={code} type="button" lang={code} className={lang === code ? "active" : ""} aria-pressed={lang === code} aria-label={name} onClick={() => setLang(code)}>{label}</button>
+        )}
+      </div>
       <a className="btn" href="#contact">{t.book}</a>
       <button className="menu" type="button" onClick={() => setOpen(!open)} aria-label={t.menu} aria-expanded={open} aria-controls="nav-links">{open ? "✕" : "☰"}</button>
     </div>
@@ -127,14 +131,14 @@ function Nav({t, lang, toggleLang, theme, toggleTheme}) {
 }
 
 export default function App() {
-  const [lang, toggleLang] = useLanguage();
+  const [lang, setLang] = useLanguage();
   const [theme, toggleTheme] = useTheme();
   const t = content[lang];
   const [filter, setFilter] = useState("All");
   const selected = filter === "All" ? gallery : gallery.filter(x => x.category === filter);
 
   return <>
-    <Nav t={t} lang={lang} toggleLang={toggleLang} theme={theme} toggleTheme={toggleTheme}/>
+    <Nav t={t} lang={lang} setLang={setLang} theme={theme} toggleTheme={toggleTheme}/>
 
     <header className="hero" id="home">
       <img className="hero-bg" src={photos.hero.src} srcSet={photos.hero.srcSet} sizes="100vw" alt={t.heroAlt} fetchPriority="high"/>
